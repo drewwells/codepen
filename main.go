@@ -81,7 +81,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 	li := regexp.MustCompile(`</li>`)
 	num := regexp.MustCompile("\\d+")
 	mats := re.FindAllIndex(bs, -1)
-
+	log.Println("request for stuff", mux.Vars(r))
 	cts := make([]int64, len(mats))
 	for i, m := range mats {
 		pos := li.FindIndex(bs[m[0]:])
