@@ -66,7 +66,8 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	resp, err := client.Get(url + r.URL.String())
+	pt := url + r.URL.Path
+	resp, err := client.Get(pt)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -83,9 +84,11 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 	mats := re.FindAllIndex(bs, -1)
 	log.Println("request for stuff", mux.Vars(r))
 	cts := make([]int64, len(mats))
+	var hits string
+	_ = hits
 	for i, m := range mats {
 		pos := li.FindIndex(bs[m[0]:])
-		log.Println(string(bs[m[0] : m[0]+pos[0]]))
+		hits += string(bs[m[0] : m[0]+pos[0]])
 
 		n := string(num.Find(bs[m[0] : m[0]+pos[0]]))
 		cts[i], _ = strconv.ParseInt(n, 10, 32)
@@ -94,6 +97,8 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 	if len(mats) == 0 {
 		WriteJSON(w, map[string]interface{}{
 			"message": "No details found",
+			"url":     pt,
+			"src":     string(bs),
 		})
 		return
 	}
@@ -102,6 +107,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 		"views":    cts[0],
 		"comments": cts[1],
 		"hearts":   cts[2],
+		"referrer": pt,
 	})
 
 }
