@@ -1,20 +1,16 @@
 // Currentbrowsers package attempts to find the most recent
 // versions of popular browsers.  This data is then easily
 // consumable as an API.
-package currentbrowsers
+package main
 
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 
 	"github.com/gorilla/mux"
-
-	"appengine"
-	"appengine/urlfetch"
 )
 
 const (
@@ -29,11 +25,14 @@ type Browser struct {
 	Version string `json:"version"`
 }
 
-func init() {
+func Register() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", IndexHandler)
 	r.HandleFunc("/{user}/details/{pen}", CheckHandler)
-	http.Handle("/", withCORS(r))
+	r.HandleFunc("/collection/{id}", CollectionHandler)
+	// Allow specifying individual pages
+	//r.HandleFunc("/collection/{id}/{page}", CollectionHandler)
+	return r
 }
 
 func withCORS(h http.Handler) http.Handler {
@@ -60,17 +59,33 @@ func WriteJSON(w http.ResponseWriter, v interface{}) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-// CheckHandler is responsible for refreshing the list of most
-// recent browsers.
-func CheckHandler(w http.ResponseWriter, r *http.Request) {
+func collection(client *http.Client, w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	page := mux.Vars(r)["page"]
 
-	c := appengine.NewContext(r)
-	client := urlfetch.Client(c)
-	pt := url + r.URL.Path
-	resp, err := client.Get(pt)
-	if err != nil {
-		w.Write([]byte(err.Error()))
+	var p int
+	if page != "" {
+		p, _ = strconv.Atoi(page)
 	}
+	w.Write([]byte("fetch"))
+	FetchCollection(w, client, id, p)
+
+}
+
+// FetchCollection attempts acquiring a collection, returning error
+// if empty
+func FetchCollection(w http.ResponseWriter, c *http.Client, id string, page int) {
+	urlTmpl := "http://codepen.io/collection/next_grid_for_collection/%s?page=1"
+	_ = urlTmpl
+	// Iterate through all collections
+	if page == 0 {
+		FetchCollection(w, c, id, 1)
+		return
+	}
+
+}
+
+func check(w http.ResponseWriter, resp *http.Response, path string) {
 	defer resp.Body.Close()
 
 	bs, err := ioutil.ReadAll(resp.Body)
@@ -82,7 +97,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 	li := regexp.MustCompile(`</li>`)
 	num := regexp.MustCompile("\\d+")
 	mats := re.FindAllIndex(bs, -1)
-	log.Println("request for stuff", mux.Vars(r))
+
 	cts := make([]int64, len(mats))
 	var hits string
 	_ = hits
@@ -97,7 +112,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 	if len(mats) == 0 {
 		WriteJSON(w, map[string]interface{}{
 			"message": "No details found",
-			"url":     pt,
+			"url":     path,
 			"src":     string(bs),
 		})
 		return
@@ -107,7 +122,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 		"views":    cts[0],
 		"comments": cts[1],
 		"hearts":   cts[2],
-		"referrer": pt,
+		"referrer": path,
 	})
 
 }
