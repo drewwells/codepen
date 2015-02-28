@@ -27,7 +27,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	pt := url + r.URL.Path
+	pt := CodePenURL + r.URL.Path
 	resp, err := client.Get(pt)
 
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	url = "http://codepen.io/"
+	CodePenURL = "http://codepen.io/"
 )
 
 // Browser contains the necessary information for browser

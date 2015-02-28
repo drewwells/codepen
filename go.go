@@ -9,7 +9,13 @@ func main() {
 }
 
 func CheckHandler(w http.ResponseWriter, r *http.Request) {
+	path := CodePenURL + r.URL.Path
+	resp, err := http.Get(path)
 
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	}
+	check(w, resp, path)
 }
 
 func CollectionHandler(w http.ResponseWriter, r *http.Request) {
