@@ -19,7 +19,7 @@ Response
 
 specify the user and collection ID. `http://codepen-api.appspot.com/collection/{id}`
 
-    http://codepen.io/collection/DbNZQJ/
+    http://codepen-api.appspot.com/collection/DbNZQJ/
 
 Response
 
