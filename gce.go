@@ -11,7 +11,9 @@ import (
 
 func init() {
 	r := Register()
-	http.Handle("/", withCORS(r))
+	http.Handle("/",
+		withCORS(r),
+	)
 }
 
 // CollectionHandler parses collection URLs on Codepen
@@ -27,7 +29,7 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	pt := CodePenURL + r.URL.Path
+	pt := "http://" + CodePenURL + r.URL.Path
 	resp, err := client.Get(pt)
 
 	if err != nil {
