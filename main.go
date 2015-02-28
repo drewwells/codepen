@@ -37,7 +37,9 @@ func Register() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", IndexHandler)
 	r.HandleFunc("/{user}/details/{pen}", CheckHandler)
+	r.HandleFunc("/{user}/details/{pen}/", CheckHandler)
 	r.HandleFunc("/collection/{id}", CollectionHandler)
+	r.HandleFunc("/collection/{id}/", CollectionHandler)
 	// Allow specifying individual pages
 	//r.HandleFunc("/collection/{id}/{page}", CollectionHandler)
 
