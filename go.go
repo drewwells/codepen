@@ -14,7 +14,9 @@ func CheckHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.Write([]byte(err.Error()))
+		return
 	}
+
 	check(w, resp, path)
 }
 

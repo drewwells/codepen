@@ -65,7 +65,7 @@ func withCORS(h http.Handler) http.Handler {
 // IndexHandler is responsible for listing the most
 // recent browsers.
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Access URL /{user}/details/{pen}"))
+	w.Write([]byte("Available endpoints:\n/{user}/details/{pen}\n/collection/{id}"))
 }
 
 func WriteJSON(w http.ResponseWriter, v interface{}) error {
@@ -219,6 +219,9 @@ func walker(node *html.Node, m map[string][]int) {
 			count := strings.TrimSpace(spanText.Data)
 			if len(count) == 0 {
 				count = strings.TrimSpace(spanText.NextSibling.FirstChild.Data)
+				if len(count) == 0 {
+					count = "0"
+				}
 			}
 
 			ct, err := strconv.Atoi(count)
@@ -261,7 +264,11 @@ func check(w http.ResponseWriter, resp *http.Response, path string) {
 		hits += string(bs[m[0] : m[0]+pos[0]])
 
 		n := string(num.Find(bs[m[0] : m[0]+pos[0]]))
-		cts[i], _ = strconv.ParseInt(n, 10, 32)
+		cts[i], err = strconv.ParseInt(n, 10, 32)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
 	}
 
 	if len(mats) == 0 {

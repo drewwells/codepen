@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,8 +24,6 @@ func TestCollection(t *testing.T) {
 	if err != io.EOF && err != nil {
 		t.Error(err)
 	}
-	e := []byte(`[{"pen":"http://codepen.io/amsul/details/Fsyav","url":"Fsyav","comments":0,"views":3944,"loves":5},{"pen":"http://codepen.io/amsul/details/cBuAl","url":"cBuAl","comments":0,"views":4764,"loves":15},{"pen":"http://codepen.io/amsul/details/nGckA","url":"nGckA","comments":1,"views":6281,"loves":9},{"pen":"http://codepen.io/amsul/details/IhCxf","url":"IhCxf","comments":0,"views":5423,"loves":5}]`)
-	if bytes.Compare(bs, e) != 0 {
-		t.Errorf("got:\n%s\nwanted:\n%s", string(bs), string(e))
-	}
+	t.Errorf("Just dump, no evaluation\n%s\n", string(bs))
+
 }
